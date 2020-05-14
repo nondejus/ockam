@@ -110,6 +110,9 @@ int main(int argc, char* argv[])
   printf("Initiator   : %d\n", run_initiator);
   printf("Responder   : %d\n", run_responder);
 
+//  error = channel_responder(&vault, &memory, &ockam_ip);
+
+
   responder_process = fork();
   if (responder_process < 0) {
     error = KEYAGREEMENT_ERROR_TEST;

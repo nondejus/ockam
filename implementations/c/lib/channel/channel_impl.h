@@ -5,6 +5,7 @@
 #include "ockam/memory.h"
 #include "memory/stdlib/stdlib.h"
 #include "ockam/transport.h"
+#include "ockam/key_agreement.h"
 
 struct ockam_channel_t {
   ockam_reader_t* transport_reader;
@@ -12,6 +13,8 @@ struct ockam_channel_t {
   ockam_reader_t* channel_reader;
   ockam_writer_t* channel_writer;
   ockam_memory_t* memory;
+  ockam_vault_t* vault;
+  key_establishment_xx key;
 };
 
 #endif

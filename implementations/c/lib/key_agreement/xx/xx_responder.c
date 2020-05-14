@@ -7,6 +7,8 @@
 #include "ockam/vault.h"
 #include "xx_local.h"
 
+#include <stdio.h>
+
 ockam_error_t ockam_key_establish_responder_xx(key_establishment_xx* xx)
 {
   ockam_error_t error = OCKAM_ERROR_NONE;
@@ -16,20 +18,24 @@ ockam_error_t ockam_key_establish_responder_xx(key_establishment_xx* xx)
   size_t        transmit_size = 0;
 
   /* Initialize handshake struct and generate initial static & ephemeral keys */
+  printf("In ockam_key_establish_responder_xx, calling prologue\n");
   error = key_agreement_prologue_xx(xx);
+  printf("Back from prologue 0x%.8x\n", error);
   if (error) goto exit;
 
-  /* Initialize handshake struct and generate initial static & ephemeral keys */
-  error = key_agreement_prologue_xx(xx);
-  if (error) goto exit;
+  printf("Responder finished key_agreement_prologue_xx\n");
 
   /* Msg 1 receive */
   error = ockam_read(xx->p_reader, read_buffer, MAX_TRANSMIT_SIZE, &bytesReceived);
   if (error) goto exit;
 
+  printf("Responder read m1\n");
+
   /* Msg 1 process */
   error = xx_responder_m1_process(xx, read_buffer, bytesReceived);
   if (error) goto exit;
+
+  printf("Responder processed m1\n");
 
   /* Msg 2 make */
   error = xx_responder_m2_make(xx, write_buffer, sizeof(write_buffer), &transmit_size);
@@ -38,6 +44,8 @@ ockam_error_t ockam_key_establish_responder_xx(key_establishment_xx* xx)
   /* Msg 2 send */
   error = ockam_write(xx->p_writer, write_buffer, transmit_size);
   if (error) goto exit;
+
+  printf("Responder sent m2\n");
 
   /* Msg 3 receive */
   error = ockam_read(xx->p_reader, read_buffer, MAX_TRANSMIT_SIZE, &bytesReceived);

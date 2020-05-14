@@ -29,6 +29,8 @@ ockam_error_t establish_responder_transport(ockam_transport_t** pp_transport,
   error = ockam_transport_accept(*pp_transport, pp_reader, pp_writer, NULL);
   if (error) goto exit;
 
+  printf("Responder transport established\n");
+
   error = OCKAM_ERROR_NONE;
 
 exit:
@@ -59,12 +61,15 @@ ockam_error_t channel_responder(ockam_vault_t* vault, ockam_memory_t* p_memory, 
   channel_attrs.reader = handshake.p_reader;
   channel_attrs.writer = handshake.p_writer;
   channel_attrs.memory = p_memory;
+  channel_attrs.vault = vault;
 
   error = ockam_channel_init(&p_channel, &channel_attrs);
   if (error) goto exit;
 
   error = ockam_channel_accept(p_channel, &p_ch_reader, &p_ch_writer);
   if (error) goto exit;
+
+  printf("Responder channel accepted\n");
 
   error = ockam_read(p_ch_reader, recv_buffer, MAX_DNS_NAME_LENGTH, &bytes_received);
   if (error) goto exit;

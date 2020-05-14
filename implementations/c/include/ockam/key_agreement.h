@@ -77,4 +77,17 @@ ockam_error_t ockam_key_establish_initiator_xx(key_establishment_xx* xx);
 
 ockam_error_t ockam_key_establish_responder_xx(key_establishment_xx* xx);
 
+ockam_error_t xx_encrypt(key_establishment_xx* xx,
+                         uint8_t* payload,
+                         size_t payload_size,
+                         uint8_t* msg,
+                         size_t msg_length,
+                         size_t* msg_size);
+
+ockam_error_t xx_decrypt(key_establishment_xx* xx,
+                         uint8_t*              payload,
+                         size_t                payload_size,
+                         uint8_t*              msg,
+                         size_t                msg_length,
+                         size_t*               payload_length);
 #endif

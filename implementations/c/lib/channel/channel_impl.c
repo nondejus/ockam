@@ -33,6 +33,9 @@ ockam_error_t ockam_channel_init(ockam_channel_t** pp_ch, ockam_channel_attribut
   p_ch->memory = p_attrs->memory;
   p_ch->transport_reader = p_attrs->reader;
   p_ch->transport_writer = p_attrs->writer;
+  p_ch->key.p_reader = p_attrs->reader;
+  p_ch->key.p_writer = p_attrs->writer;
+  p_ch->key.vault = p_attrs->vault;
 
   *pp_ch = p_ch;
 
@@ -48,7 +51,8 @@ ockam_error_t ockam_channel_connect(ockam_channel_t* p_ch, ockam_reader_t** p_re
 {
   ockam_error_t error = 0;
   printf("In ockam_channel_connect\n");
-//  error = ockam_key_initiate(p_ch->key, p_ch->transport_writer);
+  error = ockam_key_establish_initiator_xx(&p_ch->key);
+  if (error) goto exit;
   error = ockam_memory_alloc_zeroed(p_ch->memory, (uint8_t**)&p_ch->channel_reader, sizeof(ockam_reader_t));
   if (error) goto exit;
   p_ch->channel_reader->read = channel_read;
@@ -73,7 +77,8 @@ ockam_error_t ockam_channel_accept(ockam_channel_t* p_ch, ockam_reader_t** p_rea
 {
   ockam_error_t error = 0;
   printf("In ockam_channel_accept\n");
-//  error = ockam_key_respond(p_ch->key, p_ch->transport_reader);
+  error = ockam_key_establish_responder_xx(&p_ch->key);
+  if (error) goto exit;
   error = ockam_memory_alloc_zeroed(p_ch->memory, (uint8_t**)&p_ch->channel_reader, sizeof(ockam_reader_t));
   if (error) goto exit;
   p_ch->channel_reader->read = channel_read;
@@ -94,29 +99,32 @@ exit:
   return error;
 }
 
-ockam_error_t channel_read(void* ctx, uint8_t* buffer, size_t buffer_size, size_t* buffer_length)
+ockam_error_t channel_read(void* ctx, uint8_t* clear_text, size_t clear_text_size, size_t* clear_text_length)
 {
   ockam_error_t error = 0;
+  uint8_t cipher_text[1024]; //!!
+  size_t cipher_text_length;
 
   ockam_channel_t* p_ch = (ockam_channel_t*)ctx;
   printf("In channel_read\n");
-  error = ockam_read(p_ch->transport_reader, buffer, buffer_size, buffer_length);
+  error = ockam_read(p_ch->transport_reader, cipher_text, 1024, &cipher_text_length);
   if(error) goto exit;
-//  error = ockam_key_decrypt(p_ch->key, transport_buff, transport_length, buffer, buffer_size, buffer_length);
+  error = xx_decrypt(&p_ch->key, clear_text, clear_text_size, cipher_text, cipher_text_length, clear_text_length);
 exit:
   if(error) log_error(error, __func__ );
   return error;
 }
 
-ockam_error_t channel_write(void* ctx, uint8_t* buffer, size_t buffer_length)
+ockam_error_t channel_write(void* ctx, uint8_t* clear_text, size_t clear_text_length)
 {
   ockam_error_t error = 0;
-  uint8_t transport_buff[80];
-  size_t transport_length;
+  uint8_t cipher_text[1024]; //!!
+  size_t cipher_text_length;
   ockam_channel_t* p_ch = (ockam_channel_t*)ctx;
   printf("In channel_write\n");
-//  error = ockam_key_encrypt(p_ch->key, buffer, buffer_length, transport_buff, 80, &transport_length);
-  error = ockam_write(p_ch->transport_writer, buffer, buffer_length);
+  error = xx_encrypt(&p_ch->key, clear_text, clear_text_length, cipher_text, 1024, &cipher_text_length);
+  if (error) goto exit;
+  error = ockam_write(p_ch->transport_writer, cipher_text, cipher_text_length);
 exit:
   if(error) log_error(error, __func__ );
   return error;

@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include "ockam/error.h"
-#include "ockam/key_agreement.h"
 #include "ockam/memory.h"
 #include "ockam/syslog.h"
 #include "ockam/transport.h"
@@ -42,22 +41,21 @@ ockam_error_t channel_initiator(ockam_vault_t* vault, ockam_memory_t* p_memory, 
   ockam_channel_t*    p_channel = NULL;
   ockam_reader_t*     p_ch_reader;
   ockam_writer_t*     p_ch_writer;
-  key_establishment_xx handshake;
+  ockam_reader_t*     p_xp_reader;
+  ockam_writer_t*     p_xp_writer;
   uint8_t              send_buffer[MAX_TRANSMIT_SIZE];
   uint8_t              recv_buffer[MAX_TRANSMIT_SIZE];
   size_t               bytes_received = 0;
   size_t               transmit_size  = 0;
   ockam_channel_attributes_t channel_attrs;
 
-  memset(&handshake, 0, sizeof(handshake));
-  handshake.vault = vault;
-
-  error = establish_initiator_transport(&p_transport, ip_address, &handshake.p_reader, &handshake.p_writer);
+  error = establish_initiator_transport(&p_transport, ip_address, &p_xp_reader, &p_xp_writer);
   if (error) goto exit;
 
-  channel_attrs.reader = handshake.p_reader;
-  channel_attrs.writer = handshake.p_writer;
+  channel_attrs.reader = p_xp_reader;
+  channel_attrs.writer = p_xp_writer;
   channel_attrs.memory = p_memory;
+  channel_attrs.vault = vault;
 
   error = ockam_channel_init(&p_channel, &channel_attrs);
   if (error) goto exit;
