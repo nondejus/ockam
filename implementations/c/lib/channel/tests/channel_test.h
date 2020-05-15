@@ -2,10 +2,10 @@
 #include "ockam/channel.h"
 #include "ockam/vault.h"
 
-#define ACK      "ACK"
-#define ACK_SIZE 3
-#define OK       "OK"
-#define OK_SIZE  2
+#define PING      "PING"
+#define PING_SIZE 5
+#define ACK       "ACK"
+#define ACK_SIZE  4
 
 #define MAX_TRANSMIT_SIZE 2048
 

@@ -21,4 +21,6 @@ ockam_cc_test(
 		ockam::channel
 		ockam::vault
 		ockam::vault::default
+	TEST_OPTS
+		-i -r
 )

@@ -19,11 +19,6 @@
 #include "ockam/channel.h"
 #include "channel_test.h"
 
-#define ACK      "ACK"
-#define ACK_SIZE 3
-#define OK       "OK"
-#define OK_SIZE  2
-
 bool               run_initiator = false;
 bool               run_responder = false;
 ockam_ip_address_t ockam_ip      = { "", "127.0.0.1", 8000 };
@@ -110,8 +105,7 @@ int main(int argc, char* argv[])
   printf("Initiator   : %d\n", run_initiator);
   printf("Responder   : %d\n", run_responder);
 
-//  error = channel_responder(&vault, &memory, &ockam_ip);
-
+  //  error = channel_responder(&vault, &memory, &ockam_ip);
 
   responder_process = fork();
   if (responder_process < 0) {
